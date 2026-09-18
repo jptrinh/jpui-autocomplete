@@ -1,0 +1,504 @@
+{
+    "metadata": {
+        "advanced": true,
+        "name": "jpui-autocomplete",
+        "description": "A free-text input with externally supplied suggestions (typeahead / address search). The value is whatever is typed; `search` fires debounced after `minChars`, your workflow fetches results and binds them to `suggestions`, which are displayed as-is (never filtered). Arrow keys move the highlight, Enter picks it, Escape closes the list. By default Enter never submits the parent form. The list is teleported to the page root so a modal never clips it. ARIA combobox pattern (`role=combobox`, `aria-activedescendant`, polite live region for result counts). Integrates with WeWeb forms.",
+        "keywords": [
+            "autocomplete",
+            "typeahead",
+            "search",
+            "suggestions",
+            "address",
+            "geocoding",
+            "combobox",
+            "input"
+        ]
+    },
+    "properties": [
+        {
+            "name": "suggestions",
+            "description": "Results of your own search, displayed as-is and NEVER filtered by the component. Default shape `[{ label, description?, value? }]`; bind any array and use the mapping formulas. Extra fields are kept and returned in the `select` event.",
+            "type": "array",
+            "defaultValue": [
+                {
+                    "label": "Blue Bottle Coffee",
+                    "description": "Seongmisan-ro 32-gil 52, Seoul"
+                },
+                {
+                    "label": "Rue de Gerland",
+                    "description": "7th Arrondissement, Lyon, France"
+                }
+            ]
+        },
+        {
+            "name": "mappingLabel",
+            "description": "Formula resolving the main line of a suggestion.",
+            "type": "formula",
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['label']"
+            }
+        },
+        {
+            "name": "mappingDescription",
+            "description": "Formula resolving the optional second line.",
+            "type": "formula",
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['description']"
+            }
+        },
+        {
+            "name": "mappingValue",
+            "description": "Formula resolving the text written in the field when the suggestion is picked. Falls back to the label.",
+            "type": "formula",
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['value']"
+            }
+        },
+        {
+            "name": "initValue",
+            "description": "Text shown in the field. Changing it replaces the text WITHOUT emitting `search`.",
+            "type": "string",
+            "defaultValue": ""
+        },
+        {
+            "name": "minChars",
+            "description": "Minimum trimmed length before `search` fires and the list can open.",
+            "type": "number",
+            "defaultValue": 3
+        },
+        {
+            "name": "debounceDelay",
+            "description": "Milliseconds after the last keystroke before `search` fires. `change` is never debounced.",
+            "type": "number",
+            "defaultValue": 300
+        },
+        {
+            "name": "isLoading",
+            "description": "Bind to your own searching flag; shows `loadingText` while no suggestion is bound.",
+            "type": "boolean",
+            "defaultValue": false
+        },
+        {
+            "name": "loadingText",
+            "description": "Text shown while loading.",
+            "type": "string",
+            "defaultValue": {
+                "en": "Searching…"
+            }
+        },
+        {
+            "name": "emptyStateText",
+            "description": "Shown when a search went out for the current text and no suggestion is bound. Empty keeps the list closed instead.",
+            "type": "string",
+            "defaultValue": {
+                "en": "No suggestions"
+            }
+        },
+        {
+            "name": "placeholder",
+            "description": "Input placeholder.",
+            "type": "string",
+            "defaultValue": {
+                "en": "Search…"
+            }
+        },
+        {
+            "name": "autoHighlightFirst",
+            "description": "Highlight the first suggestion when results arrive, so Enter picks it.",
+            "type": "boolean",
+            "defaultValue": true
+        },
+        {
+            "name": "submitOnEnter",
+            "description": "When no suggestion is highlighted, let Enter submit the parent form. Off by default: Enter fires `enter` and never submits.",
+            "type": "boolean",
+            "defaultValue": false
+        },
+        {
+            "name": "clearable",
+            "description": "Show a clear button when the field has text.",
+            "type": "boolean",
+            "defaultValue": true
+        },
+        {
+            "name": "disabled",
+            "description": "Disable the field.",
+            "type": "boolean",
+            "defaultValue": false
+        },
+        {
+            "name": "readonly",
+            "description": "Show the text without allowing changes.",
+            "type": "boolean",
+            "defaultValue": false
+        },
+        {
+            "name": "invalid",
+            "description": "Sets aria-invalid and the `invalid` state.",
+            "type": "boolean",
+            "defaultValue": false
+        },
+        {
+            "name": "required",
+            "description": "Native required on the input (form validation).",
+            "type": "boolean",
+            "defaultValue": false
+        },
+        {
+            "name": "forceOpen",
+            "description": "Editor only: keep the list open to style it.",
+            "type": "boolean",
+            "defaultValue": false
+        },
+        {
+            "name": "ariaLabel",
+            "description": "Screen-reader name. Falls back to fieldName, then the element name.",
+            "type": "string",
+            "defaultValue": ""
+        },
+        {
+            "name": "clearAriaLabel",
+            "description": "Screen-reader name of the clear button.",
+            "type": "string",
+            "defaultValue": {
+                "en": "Clear"
+            }
+        },
+        {
+            "name": "fieldName",
+            "description": "Form field name.",
+            "type": "string",
+            "defaultValue": ""
+        },
+        {
+            "name": "customValidation",
+            "description": "Enable custom validation.",
+            "type": "boolean",
+            "defaultValue": false
+        },
+        {
+            "name": "validation",
+            "description": "Custom validation formula.",
+            "type": "formula",
+            "defaultValue": ""
+        },
+        {
+            "name": "inputFontSize",
+            "description": "Input font size.",
+            "type": "string",
+            "defaultValue": "16px"
+        },
+        {
+            "name": "inputFontWeight",
+            "description": "Input font weight.",
+            "type": "number",
+            "defaultValue": 400
+        },
+        {
+            "name": "inputTextColor",
+            "description": "Input text color.",
+            "type": "string",
+            "defaultValue": "#111827"
+        },
+        {
+            "name": "placeholderColor",
+            "description": "Placeholder color.",
+            "type": "string",
+            "defaultValue": "#6b7280"
+        },
+        {
+            "name": "iconColor",
+            "description": "Clear icon color.",
+            "type": "string",
+            "defaultValue": "#6b7280"
+        },
+        {
+            "name": "iconSize",
+            "description": "Clear icon size.",
+            "type": "string",
+            "defaultValue": "16px"
+        },
+        {
+            "name": "side",
+            "description": "List position: bottom-start | top-start (flips when there is no room).",
+            "type": "string",
+            "defaultValue": "bottom-start"
+        },
+        {
+            "name": "offsetY",
+            "description": "Gap between field and list, in px.",
+            "type": "number",
+            "defaultValue": 4
+        },
+        {
+            "name": "dropdownMaxHeight",
+            "description": "Max height of the list.",
+            "type": "string",
+            "defaultValue": "300px"
+        },
+        {
+            "name": "dropdownBgColor",
+            "description": "List background.",
+            "type": "string",
+            "defaultValue": "#ffffff"
+        },
+        {
+            "name": "dropdownBorderAll",
+            "description": "List border (CSS shorthand).",
+            "type": "string",
+            "defaultValue": "1px solid #e5e7eb"
+        },
+        {
+            "name": "dropdownBorderRadius",
+            "description": "List border radius.",
+            "type": "string",
+            "defaultValue": "6px"
+        },
+        {
+            "name": "dropdownPadding",
+            "description": "List padding.",
+            "type": "string",
+            "defaultValue": "4px"
+        },
+        {
+            "name": "dropdownShadow",
+            "description": "List shadow.",
+            "type": "string",
+            "defaultValue": "0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -2px rgba(0,0,0,0.1)"
+        },
+        {
+            "name": "zIndex",
+            "description": "List z-index. The list is teleported to the page root: keep it above modals.",
+            "type": "number",
+            "defaultValue": 9999
+        },
+        {
+            "name": "optionFontSize",
+            "description": "Suggestion label font size.",
+            "type": "string",
+            "defaultValue": "15px"
+        },
+        {
+            "name": "optionFontWeight",
+            "description": "Suggestion label font weight.",
+            "type": "number",
+            "defaultValue": 500
+        },
+        {
+            "name": "optionFontColor",
+            "description": "Suggestion text color.",
+            "type": "string",
+            "defaultValue": "#111827"
+        },
+        {
+            "name": "optionBgColorActive",
+            "description": "Background of the highlighted suggestion.",
+            "type": "string",
+            "defaultValue": "#f3f4f6"
+        },
+        {
+            "name": "optionPadding",
+            "description": "Suggestion padding.",
+            "type": "string",
+            "defaultValue": "6px 8px"
+        },
+        {
+            "name": "optionBorderRadius",
+            "description": "Suggestion border radius.",
+            "type": "string",
+            "defaultValue": "4px"
+        },
+        {
+            "name": "descriptionFontSize",
+            "description": "Description font size.",
+            "type": "string",
+            "defaultValue": "13px"
+        },
+        {
+            "name": "descriptionFontColor",
+            "description": "Description color.",
+            "type": "string",
+            "defaultValue": "#6b7280"
+        },
+        {
+            "name": "statusFontSize",
+            "description": "Loading / no results font size.",
+            "type": "string",
+            "defaultValue": "14px"
+        },
+        {
+            "name": "statusFontColor",
+            "description": "Loading / no results color.",
+            "type": "string",
+            "defaultValue": "#6b7280"
+        }
+    ],
+    "states": [
+        {
+            "name": "focus",
+            "description": "Active while the input has focus."
+        },
+        {
+            "name": "focus-visible",
+            "description": "Active while focus came from the keyboard."
+        },
+        {
+            "name": "disabled",
+            "description": "Active when disabled."
+        },
+        {
+            "name": "readonly",
+            "description": "Active when read only."
+        },
+        {
+            "name": "invalid",
+            "description": "Active when invalid is on."
+        }
+    ],
+    "events": [
+        {
+            "name": "change",
+            "description": "The text changed: typing (not debounced), picking a suggestion, clearing, or Set value / Clear actions.",
+            "payload": {
+                "value": "string"
+            }
+        },
+        {
+            "name": "search",
+            "description": "Debounced by `debounceDelay`, only from `minChars` trimmed characters. Run your search here and bind the results to `suggestions`.",
+            "payload": {
+                "value": "string"
+            }
+        },
+        {
+            "name": "select",
+            "description": "A suggestion was picked (click or Enter). `item` is the original bound object, `value` the text written in the field.",
+            "payload": {
+                "item": "object",
+                "value": "string"
+            }
+        },
+        {
+            "name": "enter",
+            "description": "Enter pressed with no suggestion highlighted. The form is not submitted unless `submitOnEnter` is on.",
+            "payload": {
+                "value": "string"
+            }
+        },
+        {
+            "name": "initValueChange",
+            "description": "The init value changed.",
+            "payload": {
+                "value": "string"
+            }
+        },
+        {
+            "name": "focus",
+            "description": "The input gained focus.",
+            "payload": {
+                "value": "string"
+            }
+        },
+        {
+            "name": "blur",
+            "description": "The input lost focus.",
+            "payload": {
+                "value": "string"
+            }
+        },
+        {
+            "name": "open",
+            "description": "The suggestion list became visible.",
+            "payload": null
+        },
+        {
+            "name": "close",
+            "description": "The suggestion list was hidden.",
+            "payload": null
+        }
+    ],
+    "actions": [
+        {
+            "label": "Focus",
+            "actionName": "actionFocus",
+            "description": "Focus the input.",
+            "args": []
+        },
+        {
+            "label": "Set value",
+            "actionName": "actionSetValue",
+            "description": "Replace the text without emitting `search`; emits `change`.",
+            "args": [
+                {
+                    "name": "Value",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "label": "Clear",
+            "actionName": "actionClear",
+            "description": "Empty the field and close the list; emits `change`.",
+            "args": []
+        },
+        {
+            "label": "Open suggestions",
+            "actionName": "actionOpen",
+            "description": "Open the list (only shows if there is something to show and the input has focus).",
+            "args": []
+        },
+        {
+            "label": "Close suggestions",
+            "actionName": "actionClose",
+            "description": "Close the list.",
+            "args": []
+        }
+    ],
+    "variables": [
+        {
+            "name": "value",
+            "description": "The text in the field. Used as the form field value.",
+            "type": "string",
+            "readonly": false
+        }
+    ],
+    "localContext": {
+        "path": "autocomplete",
+        "type": "object",
+        "description": "Live component state for formulas and workflows.",
+        "content": {
+            "value": {
+                "type": "string",
+                "description": "Text in the field."
+            },
+            "query": {
+                "type": "string",
+                "description": "`value` trimmed."
+            },
+            "isOpen": {
+                "type": "boolean",
+                "description": "Whether the list is shown."
+            },
+            "activeSuggestion": {
+                "type": "object",
+                "description": "Original object of the highlighted suggestion, or null."
+            },
+            "suggestionsCount": {
+                "type": "number",
+                "description": "Number of bound suggestions."
+            }
+        }
+    },
+    "slots": [],
+    "specifications": "The component never filters or fetches: wire On search to a workflow that fetches results and stores them in a variable bound to `suggestions`. Changing `initValue` (e.g. after a pick or a map move) replaces the text without triggering a new search. IME composition (Korean, Japanese) is respected: Enter and arrows during composition are ignored.",
+    "examples": [
+        {
+            "description": "Address search bound to a variable filled by an On search workflow.",
+            "example": "{\"suggestions\":\"{{variables['addressSuggestions']}}\",\"minChars\":3,\"debounceDelay\":300,\"placeholder\":\"Search an address\",\"emptyStateText\":\"No address found\"}"
+        }
+    ],
+    "dependencies": "@floating-ui/vue"
+}

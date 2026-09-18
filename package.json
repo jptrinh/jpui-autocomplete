@@ -1,0 +1,18 @@
+{
+  "name": "jpui-autocomplete",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jptrinh/jpui-autocomplete"
+  },
+  "scripts": {
+    "build": "weweb build",
+    "serve": "weweb serve"
+  },
+  "devDependencies": {
+    "@weweb/cli": "latest"
+  },
+  "dependencies": {
+    "@floating-ui/vue": "1.1.11"
+  }
+}
