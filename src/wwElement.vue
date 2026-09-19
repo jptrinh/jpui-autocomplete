@@ -29,8 +29,6 @@
             :value="textValue"
             @input="handleInput"
             @keydown="handleKeydown"
-            @compositionstart="isComposing = true"
-            @compositionend="isComposing = false"
             @focus="handleFocus"
             @blur="handleBlur"
             @click="handleInputClick"
@@ -137,7 +135,6 @@ export default {
         const isOpen = ref(false);
         const isFocused = ref(false);
         const isFocusVisible = ref(false);
-        const isComposing = ref(false);
         const activeIndex = ref(-1);
         // Query the last `search` event was emitted for. The empty state is only
         // shown once a search for the current text has actually gone out.
@@ -245,8 +242,15 @@ export default {
 
         // New results: start from the top (or nothing) instead of keeping an index
         // that now points at a different row.
-        watch(suggestions, list => {
-            activeIndex.value = autoHighlightFirst.value && list.length > 0 ? 0 : -1;
+        // Keyed on content, not on the array: WeWeb can hand back a new array with the
+        // same rows whenever the element's bindings re-evaluate (moving the highlight
+        // updates the local context, which is enough). Resetting on reference would
+        // snap the highlight back to the first row on every arrow press.
+        const suggestionsKey = computed(() =>
+            suggestions.value.map(s => `${s.value}\u0000${s.label}\u0000${s.description}`).join('\u0001')
+        );
+        watch(suggestionsKey, () => {
+            activeIndex.value = autoHighlightFirst.value && suggestions.value.length > 0 ? 0 : -1;
         });
 
         const forceOpen = computed(() => {
@@ -415,7 +419,7 @@ export default {
 
         function handleKeydown(event) {
             // An IME (Korean, Japanese…) uses Enter and arrows to compose text.
-            if (isComposing.value || event?.isComposing || event?.keyCode === 229) return;
+            if (event?.isComposing || event?.keyCode === 229) return;
             if (isDisabled.value || isReadonly.value) return;
 
             switch (event.key) {
@@ -611,7 +615,6 @@ context.local.data?.['autocomplete']?.['value']
             dropdownRef,
             optionsRef,
             inputRef,
-            isComposing,
             activeIndex,
             listId,
             teleportRoot,
